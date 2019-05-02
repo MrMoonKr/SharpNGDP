@@ -40,6 +40,7 @@ namespace SharpNGDP.TACT.PSV
                         var seqnMatch = s_SequenceNumberRegex.Match(line);
                         if (seqnMatch.Success)
                             seqn = seqnMatch.Groups[1].Value;
+
                         continue;
                     }
 

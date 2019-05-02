@@ -7,26 +7,15 @@ namespace SharpNGDP.Ribbit
 {
     public class RibbitRequest
     {
-        public RibbitRequest(string path)
+        public RibbitRequest(Uri uri)
         {
-            var uri = new Uri(path, UriKind.RelativeOrAbsolute);
-            if (uri.IsAbsoluteUri)
-            {
-                Host = uri.Host;
-                Port = uri.Port;
-                Command = uri.LocalPath;
-            }
-            else
-            {
-                Command = uri.OriginalString;
-            }
+            URI = uri;
         }
+        
+        public Uri URI { get; }
 
-        public bool IsAbsolute { get; private set; }
-
-        public string Host { get; private set; }
-        public int Port { get; private set; }
-
-        public string Command { get; private set; }        
+        public string Host => URI.Host;
+        public int Port => URI.Port;
+        public string Command => URI.AbsolutePath.TrimStart('/');
     }
 }

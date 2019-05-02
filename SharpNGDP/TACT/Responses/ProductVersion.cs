@@ -1,7 +1,4 @@
 ﻿using SharpNGDP.TACT.PSV;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SharpNGDP.TACT.Responses
 {

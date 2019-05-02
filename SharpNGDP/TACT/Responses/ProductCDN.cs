@@ -1,7 +1,4 @@
 ﻿using SharpNGDP.TACT.PSV;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SharpNGDP.TACT.Responses
 {
@@ -25,8 +22,7 @@ namespace SharpNGDP.TACT.Responses
                 case "Hosts": Hosts = value.Split(' '); break;
                 case "Servers": Servers = value.Split(' '); break;
                 case "ConfigPath": ConfigPath = value; break;
-                default:
-                    return false;
+                default: return false;
             }
             return true;
         }
