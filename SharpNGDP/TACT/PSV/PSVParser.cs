@@ -13,7 +13,7 @@ namespace SharpNGDP.TACT.PSV
         public static PSVFile Parse(string text)
         {
             if (string.IsNullOrEmpty(text))
-                throw new Exception("Input is empty");
+                throw new PSVParseException("No input");
 
             using (var sr = new StringReader(text))
             {
@@ -46,12 +46,22 @@ namespace SharpNGDP.TACT.PSV
 
                     var row = line.Split('|');
                     if (header.Length != row.Length)
-                        throw new Exception("Column number mismatch");
+                        throw new PSVParseException($"Column number mismatch between header ({header.Length}) and row ({row.Length}) at row {line}");
                     rows.Add(row);
                 }
 
                 return new PSVFile(seqn, header, rows.ToArray());
             }
         }
+    }
+
+    public class PSVParseException : Exception
+    {
+        public PSVParseException()
+        { }
+
+        public PSVParseException(string message)
+            : base(message)
+        { }
     }
 }

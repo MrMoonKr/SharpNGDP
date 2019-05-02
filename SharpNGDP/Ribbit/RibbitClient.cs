@@ -8,11 +8,6 @@ namespace SharpNGDP.Ribbit
     {
         public RibbitClient(NGDPContext context)
         {
-            UseContext(context);
-        }
-
-        public void UseContext(NGDPContext context)
-        {
             Host = context.RibbitHost;
             Port = context.RibbitPort;
         }

@@ -10,9 +10,6 @@ namespace SharpNGDP.TACT.Responses
         public string[] Servers { get; set; }
         public string ConfigPath { get; set; }
 
-        public string PathURL => $"http://{Hosts[0]}/{Path}/";
-        public string ConfigPathURL => $"http://{Hosts[0]}/{ConfigPath}/";
-
         public override bool Map(string key, string value)
         {
             switch (key)

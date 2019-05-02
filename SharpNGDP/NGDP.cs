@@ -13,6 +13,8 @@ namespace SharpNGDP
         public NGDP(NGDPContext context)
         {
             Context = context;
+
+            RibbitClient = new RibbitClient(Context);
         }
 
         public NGDP()
@@ -21,8 +23,8 @@ namespace SharpNGDP
 
         private static readonly HttpClient HttpClient = new HttpClient();
 
-        public NGDPContext Context { get; }
-
+        public NGDPContext Context { get; private set; }
+        public RibbitClient RibbitClient { get; private set; }
 
         private string CreatePartitionedHash(string hash)
             => $"{hash.Substring(0, 2)}/{hash.Substring(2, 2)}/{hash}";
