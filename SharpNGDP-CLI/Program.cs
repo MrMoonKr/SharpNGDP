@@ -1,13 +1,13 @@
-﻿using SharpNGDP;
+﻿using SharpNGDP.Files;
+using SharpNGDP.Records;
 using SharpNGDP.Ribbit;
+using SharpNGDP.Ribbit.PSV;
 using SharpNGDP.TACT;
-using SharpNGDP.TACT.Responses;
 using System;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
-namespace SharpTact
+namespace SharpNGDP
 {
     class Program
     {
@@ -22,7 +22,7 @@ namespace SharpTact
 
         private static void readLoop()
         {
-            var ngdp = new NGDP();
+            var ngdp = new NGDPClient();
             var client = new RibbitClient(ngdp.Context);
             do
             {
@@ -31,7 +31,8 @@ namespace SharpTact
                 if (string.IsNullOrEmpty(cmd)) break;
 
                 var response = client.Execute(cmd);
-                Console.WriteLine(response.Message);
+                var file = response.GetFile<RibbitFile>();
+                Console.WriteLine(file.MimeMessage.TextBody);
                 Console.WriteLine();
                 Console.WriteLine("Press ENTER to exit or any other key to continue");
             } while (Console.ReadKey().Key != ConsoleKey.Enter);
@@ -39,8 +40,8 @@ namespace SharpTact
 
         private static void printSummary()
         {
-            var ngdp = new NGDP();
-            var summary = new RibbitClient(ngdp.Context).Execute("v1/summary").GetPSVFile().MapTo<Summary>();
+            var ngdp = new NGDPClient();
+            var summary = ngdp.RibbitClient.GetSummary();
             const string SUMMARY_ALIGN_FORMAT = "{0,-20} | {1, 8} | {2, -8}";
             var header = string.Format(SUMMARY_ALIGN_FORMAT, "Product", "Seq #", "Flags");
             Console.WriteLine(header);
@@ -55,11 +56,11 @@ namespace SharpTact
 
         private static void printProducts()
         {
-            var ngdp = new NGDP();
+            var ngdp = new NGDPClient();
             // Only known WoW products
             var productNames = new string[] { "wow", "wow_beta", "wow_classic", "wow_classic_beta", "wowdev", "wowe1", "wowe2", "wowe3", "wowt", "wowv", "wowz" };
             // Filter inactive products
-            var summary = new RibbitClient(ngdp.Context).Execute("v1/summary").GetPSVFile().MapTo<Summary>();
+            var summary = new RibbitClient(ngdp.Context).Execute("v1/summary").GetFile<PSVFile>().AsRecords<SummaryRecord>();
             var filteredProductNames = productNames.Where(p => summary.Any(s => s.Product == p && string.IsNullOrEmpty(s.Flags)));
 
             // Format string for alignment
@@ -70,8 +71,8 @@ namespace SharpTact
             Console.WriteLine(new string('-', header.Length));
             foreach (var productName in filteredProductNames)
             {
-                var versions = ngdp.GetProductVersions(productName);
-                var cdns = ngdp.GetProductCDNs(productName);
+                var versions = ngdp.RibbitClient.GetProductVersions(productName);
+                var cdns = ngdp.RibbitClient.GetProductCDNs(productName);
                 var freshest = versions.OrderByDescending(v => v.BuildId).FirstOrDefault();
 
                 Console.WriteLine(PRODUCT_ALIGN_FORMAT,
@@ -82,17 +83,16 @@ namespace SharpTact
 
         private static void downloadWoWConfigs()
         {
-            var ngdp = new NGDP();
+            var ngdp = new NGDPClient();
 
-            var version = ngdp.GetProductVersions("wow").OrderByDescending(v => v.BuildId).FirstOrDefault();
-            var cdn = ngdp.GetPrefferedCDN(ngdp.GetProductCDNs("wow"));
+            var version = ngdp.RibbitClient.GetProductVersions("wow").OrderByDescending(v => v.BuildId).FirstOrDefault();
+            var cdn = ngdp.TACTClient.GetPreferredCDN(ngdp.RibbitClient.GetProductCDNs("wow"));
 
-            if (!Directory.Exists("data"))
-                Directory.CreateDirectory("data");
-
-            var response = ngdp.GetConfigFileAsync(cdn, version.BuildConfig).Result;
-            var stream = response.Content.ReadAsStreamAsync().Result;
-            CopyToFile(stream, $"data/{version.BuildConfig}");
+            var buildConfig = ngdp.TACTClient.Get(new TACTRequest(cdn, CDNRequestType.Config, version.BuildConfig)).GetFile<KeyValueFile>();
+            Console.WriteLine("BuildConfig ({0})", version.BuildConfig);
+            foreach (var kvp in buildConfig.Dictionary)
+                Console.WriteLine("{0, 30} | {1}", kvp.Key, kvp.Value);
+            Console.WriteLine();
         }
 
         private static void CopyToFile(Stream stream, string destpath)

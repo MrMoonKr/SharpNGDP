@@ -1,21 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Text.RegularExpressions;
 
-namespace SharpNGDP.TACT.PSV
+namespace SharpNGDP.Ribbit.PSV
 {
-    public class PSVParser
+    public class PSVFile : RibbitFile
     {
         private static Regex s_SequenceNumberRegex = new Regex(@"seqn = (\d+)", RegexOptions.Compiled);
 
-        public static PSVFile Parse(string text)
+        public PSVFile(Stream stream)
+            : base(stream)
+        { }
+
+        public string SequenceNumber { get; private set; }
+
+        public string[] Header { get; private set; }
+        public string[][] Rows { get; private set; }
+
+        public IEnumerable<T> AsRecords<T>() where T : PSVRecord, new()
         {
-            if (string.IsNullOrEmpty(text))
+            foreach (var row in Rows)
+            {
+                var record = new T();
+                record.Read(Header, row);
+                yield return record;
+            }
+        }
+
+        public override void Read()
+        {
+            base.Read();
+
+            var content = MimeMessage.TextBody;
+
+            if (string.IsNullOrEmpty(content))
                 throw new PSVParseException("No input");
 
-            using (var sr = new StringReader(text))
+            using (var sr = new StringReader(content))
             {
                 // Read header
                 var header = sr.ReadLine().Split('|');
@@ -50,7 +72,9 @@ namespace SharpNGDP.TACT.PSV
                     rows.Add(row);
                 }
 
-                return new PSVFile(seqn, header, rows.ToArray());
+                SequenceNumber = seqn;
+                Header = header;
+                Rows = rows.ToArray();
             }
         }
     }
