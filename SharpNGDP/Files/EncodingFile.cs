@@ -106,8 +106,6 @@ namespace SharpNGDP.Files
             CEKeyPageTablePageCount = br.ReadUInt32().SwapEndian();
             EKeySpecTablePageCount = br.ReadUInt32().SwapEndian();
 
-            unk0 = br.ReadByte();
-
             ESpecBlockSize = br.ReadUInt40(true);
         }
     }
