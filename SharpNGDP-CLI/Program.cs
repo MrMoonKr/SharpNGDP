@@ -13,8 +13,8 @@ namespace SharpNGDP
     {
         static void Main(string[] args)
         {
-            printSummary();
-            printProducts();
+            //printSummary();
+            //printProducts();
             downloadWoWConfigs();
 
             readLoop();
@@ -93,6 +93,16 @@ namespace SharpNGDP
             foreach (var kvp in buildConfig.Dictionary)
                 Console.WriteLine("{0, 30} | {1}", kvp.Key, kvp.Value);
             Console.WriteLine();
+
+            // This file is yuge
+            var encodingFile = ngdp.TACTClient
+                .Get(new TACTRequest(cdn, CDNRequestType.Data, buildConfig.Dictionary["encoding"].Split(' ')[1]))
+                .GetFile<EncodingFile>();
+
+            var installFile = ngdp.TACTClient
+                .Get(new TACTRequest(cdn, CDNRequestType.Data, buildConfig.Dictionary["install"].Split(' ')[1]))
+                .GetFile<InstallFile>();
+
         }
 
         private static void CopyToFile(Stream stream, string destpath)

@@ -32,13 +32,11 @@ namespace SharpNGDP.Ribbit.PSV
         {
             base.Read();
 
-            var content = MimeMessage.TextBody;
-
-            if (string.IsNullOrEmpty(content))
-                throw new PSVParseException("No input");
-
-            using (var sr = new StringReader(content))
+            using (var sr = new StreamReader(GetStream()))
             {
+                if (sr.EndOfStream)
+                    throw new PSVParseException("No input");
+
                 // Read header
                 var header = sr.ReadLine().Split('|');
                 for (var c = 0; c < header.Length; c++)

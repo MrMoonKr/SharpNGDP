@@ -1,5 +1,6 @@
 ﻿using MimeKit;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace SharpNGDP.Ribbit
@@ -16,9 +17,12 @@ namespace SharpNGDP.Ribbit
 
         public MimeMessage MimeMessage { get; private set; }
 
+        public override Stream GetStream() =>
+            new MemoryStream(Encoding.UTF8.GetBytes(MimeMessage.TextBody));
+
         public override void Read()
         {
-            MimeMessage = MimeMessage.Load(Stream);
+            MimeMessage = MimeMessage.Load(base.GetStream());
             // throw new EmptyRibbitResponseException("Invalid response from server. Likely caused by malformed request.");
             var checksumMatch = s_ChecksumRegex.Match(((MultipartAlternative)MimeMessage.Body).Epilogue);
             if (!checksumMatch.Success)

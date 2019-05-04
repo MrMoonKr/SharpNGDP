@@ -6,10 +6,11 @@ namespace SharpNGDP
     {
         public NGDPFile(Stream stream)
         {
-            Stream = stream;
+            BaseStream = stream;
         }
 
-        public Stream Stream { get; }
+        public Stream BaseStream { get; }
+        public virtual Stream GetStream() => BaseStream;
 
         public abstract void Read();
     }

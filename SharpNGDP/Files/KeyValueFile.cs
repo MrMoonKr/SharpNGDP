@@ -14,7 +14,7 @@ namespace SharpNGDP.Files
         public override void Read()
         {
             var dict = new Dictionary<string, string>();
-            using (var sr = new StreamReader(Stream))
+            using (var sr = new StreamReader(GetStream()))
             {
                 string line;
                 while ((line = sr.ReadLine()) != null)
