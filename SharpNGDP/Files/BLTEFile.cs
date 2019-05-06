@@ -1,5 +1,6 @@
 ﻿using SharpNGDP.Extensions;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
@@ -8,6 +9,8 @@ namespace SharpNGDP.Files
 {
     public class BLTEFile : NGDPFile
     {
+        private static Logger log = Logger.Create<BLTEFile>();
+
         public BLTEFile(Stream stream)
             : base(stream)
         { }
@@ -23,6 +26,7 @@ namespace SharpNGDP.Files
 
         public override void Read()
         {
+            var sw = Stopwatch.StartNew();
             using (var br = new BinaryReader(base.GetStream()))
             {
                 BLTEHeader = new BLTEHeader();
@@ -50,6 +54,9 @@ namespace SharpNGDP.Files
                     Buffer = ms.ToArray();
                 }
             }
+            sw.Stop();
+            log.WriteLine($"Parsed BLTEFile in {sw.Elapsed}");
+            log.WriteLine($"Decompressed size {Buffer.Length} bytes");
         }
 
         private byte[] ReadDatablock(BLTEChunkInfoEntry chunkInfoEntry, BLTEDataBlock data)

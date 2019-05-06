@@ -1,6 +1,7 @@
 ﻿using SharpNGDP.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -8,6 +9,8 @@ namespace SharpNGDP.Files
 {
     public class EncodingFile : BLTEFile
     {
+        private static Logger log = Logger.Create<EncodingFile>();
+
         public EncodingFile(Stream stream)
             : base(stream)
         { }
@@ -28,6 +31,7 @@ namespace SharpNGDP.Files
         {
             base.Read();
 
+            var sw = Stopwatch.StartNew();
             using (var br = new BinaryReader(GetStream()))
             {
                 EncodingHeader = new EncodingHeader();
@@ -73,6 +77,8 @@ namespace SharpNGDP.Files
 
                 EncodingFileProfile = Encoding.UTF8.GetString(br.ReadBytes((int)br.Remaining()));
             }
+            sw.Stop();
+            log.WriteLine($"Parsed EncodingFile in {sw.Elapsed}");
         }
     }
 

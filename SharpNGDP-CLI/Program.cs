@@ -88,25 +88,45 @@ namespace SharpNGDP
             var version = ngdp.RibbitClient.GetProductVersions("wow").OrderByDescending(v => v.BuildId).FirstOrDefault();
             var cdn = ngdp.TACTClient.GetPreferredCDN(ngdp.RibbitClient.GetProductCDNs("wow"));
 
-            var buildConfig = ngdp.TACTClient.Get(new TACTRequest(cdn, CDNRequestType.Config, version.BuildConfig)).GetFile<KeyValueFile>();
-            Console.WriteLine("BuildConfig ({0})", version.BuildConfig);
+            var buildConfig = ngdp.TACTClient
+                .Get(new TACTRequest(cdn, CDNRequestType.Config, version.BuildConfig))
+                .GetFile<KeyValueFile>();
+            Console.WriteLine($"{version.BuildConfig} BuildConfig");
             foreach (var kvp in buildConfig.Dictionary)
                 Console.WriteLine("{0, 30} | {1}", kvp.Key, kvp.Value);
             Console.WriteLine();
 
-            // This file is yuge
-            var encodingFile = ngdp.TACTClient
-                .Get(new TACTRequest(cdn, CDNRequestType.Data, buildConfig.Dictionary["encoding"].Split(' ')[1]))
-                .GetFile<EncodingFile>();
+            var cdnConfig = ngdp.TACTClient
+                .Get(new TACTRequest(cdn, CDNRequestType.Config, version.CDNConfig))
+                .GetFile<KeyValueFile>();
+            Console.WriteLine($"{version.CDNConfig} CDNConfig");
+            foreach (var kvp in cdnConfig.Dictionary)
+                Console.WriteLine("{0, 30} | {1}", kvp.Key, kvp.Value);
+            Console.WriteLine();
 
+            foreach (var archive in cdnConfig.Dictionary["archives"].Split(' '))
+            {
+                Console.WriteLine($"{archive}.index ArchiveIndexFile");
+                var archiveIndex = ngdp.TACTClient
+                    .Get(new TACTRequest(cdn, CDNRequestType.Data, $"{archive}.index"))
+                    .GetFile<ArchiveIndexFile>();
+            }
+
+            Console.WriteLine($"{buildConfig.Dictionary["install"].Split(' ')[1]} InstallFile");
             var installFile = ngdp.TACTClient
                 .Get(new TACTRequest(cdn, CDNRequestType.Data, buildConfig.Dictionary["install"].Split(' ')[1]))
                 .GetFile<InstallFile>();
 
+            Console.WriteLine($"{buildConfig.Dictionary["download"].Split(' ')[1]} DownloadFile");
             var downloadFile = ngdp.TACTClient
                 .Get(new TACTRequest(cdn, CDNRequestType.Data, buildConfig.Dictionary["download"].Split(' ')[1]))
                 .GetFile<DownloadFile>();
 
+            // This file is yuge
+            Console.WriteLine($"{buildConfig.Dictionary["encoding"].Split(' ')[1]} EncodingFile");
+            var encodingFile = ngdp.TACTClient
+                .Get(new TACTRequest(cdn, CDNRequestType.Data, buildConfig.Dictionary["encoding"].Split(' ')[1]))
+                .GetFile<EncodingFile>();
         }
 
         private static void CopyToFile(Stream stream, string destpath)

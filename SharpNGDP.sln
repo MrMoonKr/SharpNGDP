@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.572
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpNGDP", "SharpNGDP\SharpNGDP.csproj", "{B74615DE-E9F7-42E1-BA9F-49A1B0840CA4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpNGDP", "SharpNGDP\SharpNGDP.csproj", "{B74615DE-E9F7-42E1-BA9F-49A1B0840CA4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpNGDP-CLI", "SharpNGDP-CLI\SharpNGDP-CLI.csproj", "{EA839EDF-2F53-4E1D-A414-F12F070074C6}"
 EndProject

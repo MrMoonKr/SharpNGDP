@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace SharpNGDP.Files
 {
     public class KeyValueFile : NGDPFile
     {
+        private static Logger log = Logger.Create<KeyValueFile>();
+
         public KeyValueFile(Stream stream)
             : base(stream)
         { }
@@ -13,6 +16,7 @@ namespace SharpNGDP.Files
 
         public override void Read()
         {
+            var sw = Stopwatch.StartNew();
             var dict = new Dictionary<string, string>();
             using (var sr = new StreamReader(GetStream()))
             {
@@ -31,8 +35,11 @@ namespace SharpNGDP.Files
 
                     dict.Add(parts[0].Trim(), parts[1].Trim());
                 }
+                Dictionary = dict;
             }
-            Dictionary = dict;
+            sw.Stop();            
+            log.WriteLine($"Parsed KeyValueFile in {sw.Elapsed}");
+            log.WriteLine($"{Dictionary.Count} entries");
         }
     }
 }

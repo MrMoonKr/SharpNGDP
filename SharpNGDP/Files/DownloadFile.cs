@@ -1,5 +1,6 @@
 ﻿using SharpNGDP.Extensions;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -7,6 +8,8 @@ namespace SharpNGDP.Files
 {
     public class DownloadFile : BLTEFile
     {
+        private static Logger log = Logger.Create<DownloadFile>();
+
         public DownloadFile(Stream stream)
             : base(stream)
         { }
@@ -19,6 +22,7 @@ namespace SharpNGDP.Files
         {
             base.Read();
 
+            var sw = Stopwatch.StartNew();
             using (var br = new BinaryReader(GetStream()))
             {
                 DownloadHeader = new DownloadHeader();
@@ -40,6 +44,9 @@ namespace SharpNGDP.Files
                     DownloadTags[i].Read(br, flagSize);
                 }
             }
+            sw.Stop();
+            log.WriteLine($"Parsed DownloadFile file in {sw.Elapsed}");
+            log.WriteLine($"{DownloadEntries.Length} entries and {DownloadTags.Length} tags");
         }
     }
 

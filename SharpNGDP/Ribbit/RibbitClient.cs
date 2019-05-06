@@ -9,10 +9,14 @@ namespace SharpNGDP.Ribbit
 {
     public class RibbitClient
     {
+        private static Logger log = Logger.Create<RibbitClient>();
+
         public RibbitClient(NGDPContext context)
-        {
+        { 
             Host = context.RibbitHost;
             Port = context.RibbitPort;
+
+            log.WriteLine($"Using ribbit://{Host}:{Port}/ as base for implicit ribbit requests");
         }
 
         public string Host { get; private set; }
@@ -20,6 +24,8 @@ namespace SharpNGDP.Ribbit
 
         public RibbitResponse Execute(RibbitRequest request)
         {
+            log.WriteLine($"Executing request for {request.URI}");
+
             using (var client = new TcpClient(request.Host, request.Port))
             {
                 var ns = client.GetStream();

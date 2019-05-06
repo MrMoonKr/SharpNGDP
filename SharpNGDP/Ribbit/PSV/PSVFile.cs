@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -7,6 +8,8 @@ namespace SharpNGDP.Ribbit.PSV
 {
     public class PSVFile : RibbitFile
     {
+        private static Logger log = Logger.Create<PSVFile>();
+
         private static Regex s_SequenceNumberRegex = new Regex(@"seqn = (\d+)", RegexOptions.Compiled);
 
         public PSVFile(Stream stream)
@@ -31,6 +34,8 @@ namespace SharpNGDP.Ribbit.PSV
         public override void Read()
         {
             base.Read();
+
+            var sw = Stopwatch.StartNew();
 
             using (var sr = new StreamReader(GetStream()))
             {
@@ -74,6 +79,11 @@ namespace SharpNGDP.Ribbit.PSV
                 Header = header;
                 Rows = rows.ToArray();
             }
+
+            sw.Stop();
+            log.WriteLine($"Parsed PSVFile in {sw.Elapsed}");
+            log.WriteLine($"Sequence Number: {SequenceNumber}");
+            log.WriteLine($"{Rows.Length} rows with {Header.Length} columns");
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using SharpNGDP.Extensions;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -7,6 +8,8 @@ namespace SharpNGDP.Files
 {
     public class InstallFile : BLTEFile
     {
+        private static Logger log = Logger.Create<InstallFile>();
+
         public InstallFile(Stream stream)
             : base(stream)
         { }
@@ -19,6 +22,7 @@ namespace SharpNGDP.Files
         {
             base.Read();
 
+            var sw = Stopwatch.StartNew();
             using (var br = new BinaryReader(GetStream()))
             {
                 InstallFileHeader = new InstallFileHeader();
@@ -41,6 +45,10 @@ namespace SharpNGDP.Files
                     InstallFileEntries[i].Read(br, InstallFileHeader.HashSize);
                 }
             }
+
+            sw.Stop();
+            log.WriteLine($"Parsed InstallFile in {sw.Elapsed}");
+            log.WriteLine($"{InstallFileEntries.Length} entries and {InstallFileTags.Length} tags");
         }
     }
 
