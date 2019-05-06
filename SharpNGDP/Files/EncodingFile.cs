@@ -21,6 +21,8 @@ namespace SharpNGDP.Files
         public EncodingTableIndex[] ETableIndicies { get; private set; }
         public EKeySpecPageTable[] EKeySpecPageTable { get; private set; }
 
+        public string EncodingFileProfile { get; private set; }
+
 
         public override void Read()
         {
@@ -68,6 +70,8 @@ namespace SharpNGDP.Files
                     EKeySpecPageTable[i].Read(br, EncodingHeader.EKeyHashSize);
                     br.BaseStream.Position = startRecord + EncodingHeader.EKeySpecPageTableSize * 1024;
                 }
+
+                EncodingFileProfile = Encoding.UTF8.GetString(br.ReadBytes((int)br.Remaining()));
             }
         }
     }

@@ -15,6 +15,9 @@ namespace SharpNGDP.Extensions
             return (ulong)(fsb[4] << 32 | fsb[3] << 24 | fsb[2] << 16 | (fsb[1] << 8) | fsb[0]);
         }
 
+        public static long Remaining(this BinaryReader br) =>
+            br.BaseStream.Length - br.BaseStream.Position;
+
         public static byte[] ReverseBytes(this byte[] bytes)
         {
             var newBytes = new byte[bytes.Length];

@@ -103,6 +103,10 @@ namespace SharpNGDP
                 .Get(new TACTRequest(cdn, CDNRequestType.Data, buildConfig.Dictionary["install"].Split(' ')[1]))
                 .GetFile<InstallFile>();
 
+            var downloadFile = ngdp.TACTClient
+                .Get(new TACTRequest(cdn, CDNRequestType.Data, buildConfig.Dictionary["download"].Split(' ')[1]))
+                .GetFile<DownloadFile>();
+
         }
 
         private static void CopyToFile(Stream stream, string destpath)
