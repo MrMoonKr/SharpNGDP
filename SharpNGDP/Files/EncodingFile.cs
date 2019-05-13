@@ -18,14 +18,15 @@ namespace SharpNGDP.Files
         public EncodingHeader EncodingHeader { get; private set; }
         public string[] ESpec { get; private set; }
 
-        public EncodingTableIndex[] CEKeyTableIndices { get; private set; }
-        public CEKeyPageTable[] CEKeyPageTable { get; private set; }
+        public EncodingTableIndex[] ContentKeyTableIndices { get; private set; }
+        public ContentKeyEntry[] ContentKeyEntries { get; private set; }
 
-        public EncodingTableIndex[] ETableIndicies { get; private set; }
-        public EKeySpecPageTable[] EKeySpecPageTable { get; private set; }
+        public EncodingTableIndex[] EKeyTableIndices { get; private set; }
+        public EKeySpecEntry[] EKeySpecEntries { get; private set; }
 
         public string EncodingFileProfile { get; private set; }
 
+        public Dictionary<string, string[]> ContentKeys { get; private set; }
 
         public override void Read()
         {
@@ -43,42 +44,64 @@ namespace SharpNGDP.Files
                     espec.Add(br.ReadCString());
                 ESpec = espec.ToArray();
 
-                CEKeyTableIndices = new EncodingTableIndex[EncodingHeader.CEKeyPageTablePageCount];
-                for (var i = 0; i < CEKeyTableIndices.Length; i++)
+                ContentKeyTableIndices = new EncodingTableIndex[EncodingHeader.CEKeyPageTablePageCount];
+                
+                for (var i = 0; i < ContentKeyTableIndices.Length; i++)
                 {
-                    CEKeyTableIndices[i] = new EncodingTableIndex();
-                    CEKeyTableIndices[i].Read(br, EncodingHeader.CKeyHashSize);
+                    ContentKeyTableIndices[i] = new EncodingTableIndex();
+                    ContentKeyTableIndices[i].Read(br, EncodingHeader.CKeyHashSize);
                 }
 
-                CEKeyPageTable = new CEKeyPageTable[EncodingHeader.CEKeyPageTablePageCount];
-                for (var i = 0; i < CEKeyPageTable.Length; i++)
+                var ckeys = new List<ContentKeyEntry>();
+                for (var i = 0; i < EncodingHeader.CEKeyPageTablePageCount; i++)
                 {
-                    var startRecord = br.BaseStream.Position;
-                    CEKeyPageTable[i] = new CEKeyPageTable();
-                    CEKeyPageTable[i].Read(br, EncodingHeader.CKeyHashSize, EncodingHeader.EKeyHashSize);
-                    br.BaseStream.Position = startRecord + EncodingHeader.CEKeyPageTableSize * 1024;
+                    var offset = br.BaseStream.Position;
+                    long remaining() => (offset + (EncodingHeader.CEKeyPageTableSize * 1024)) - br.BaseStream.Position;
+                    while (remaining() > 0)
+                    {
+                        var entry = new ContentKeyEntry();
+                        entry.Read(br, EncodingHeader.CKeyHashSize, EncodingHeader.EKeyHashSize);
+                        if (entry.KeyCount == 0)
+                            break;
+
+                        ckeys.Add(entry);
+                    }
+
+                    br.BaseStream.Position = offset + EncodingHeader.CEKeyPageTableSize * 1024;
+                }
+                ContentKeyEntries = ckeys.ToArray();
+
+                EKeyTableIndices = new EncodingTableIndex[EncodingHeader.EKeySpecTablePageCount];
+                for (var i = 0; i < EKeyTableIndices.Length; i++)
+                {
+                    EKeyTableIndices[i] = new EncodingTableIndex();
+                    EKeyTableIndices[i].Read(br, EncodingHeader.EKeyHashSize);
                 }
 
-                ETableIndicies = new EncodingTableIndex[EncodingHeader.EKeySpecTablePageCount];
-                for (var i = 0; i < ETableIndicies.Length; i++)
+                var ekeys = new List<EKeySpecEntry>();
+                for (var i = 0; i < EncodingHeader.EKeySpecTablePageCount; i++)
                 {
-                    ETableIndicies[i] = new EncodingTableIndex();
-                    ETableIndicies[i].Read(br, EncodingHeader.EKeyHashSize);
-                }
+                    var offset = br.BaseStream.Position;
+                    long remaining() => (offset + (EncodingHeader.EKeySpecPageTableSize * 1024)) - br.BaseStream.Position;
+                    while (remaining() > 0)
+                    {
+                        var entry = new EKeySpecEntry();
+                        entry.Read(br, EncodingHeader.EKeyHashSize);
+                        //if (entry.ESpecIndex == -1)
+                        //    break;
 
-                EKeySpecPageTable = new EKeySpecPageTable[EncodingHeader.EKeySpecTablePageCount];
-                for (var i = 0; i < EKeySpecPageTable.Length; i++)
-                {
-                    var startRecord = br.BaseStream.Position;
-                    EKeySpecPageTable[i] = new EKeySpecPageTable();
-                    EKeySpecPageTable[i].Read(br, EncodingHeader.EKeyHashSize);
-                    br.BaseStream.Position = startRecord + EncodingHeader.EKeySpecPageTableSize * 1024;
+                        ekeys.Add(entry);
+                    }
+
+                    br.BaseStream.Position = offset + EncodingHeader.EKeySpecPageTableSize * 1024;
                 }
+                EKeySpecEntries = ekeys.ToArray();
 
                 EncodingFileProfile = Encoding.UTF8.GetString(br.ReadBytes((int)br.Remaining()));
             }
             sw.Stop();
             log.WriteLine($"Parsed EncodingFile in {sw.Elapsed}");
+            log.WriteLine($"{ContentKeyEntries.Length} CKeys and {EKeySpecEntries.Length} EKeys");
         }
     }
 
@@ -133,7 +156,7 @@ namespace SharpNGDP.Files
         }
     }
 
-    public class CEKeyPageTable
+    public class ContentKeyEntry
     {
         public byte KeyCount { get; private set; }
         public ulong FileSize { get; private set; }
@@ -151,7 +174,7 @@ namespace SharpNGDP.Files
         }
     }
 
-    public class EKeySpecPageTable
+    public class EKeySpecEntry
     {
         public byte[] EKey { get; private set; }
         public uint ESpecIndex { get; private set; }

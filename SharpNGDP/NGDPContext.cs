@@ -8,12 +8,15 @@
         // Prioritized by order, multiple for failover
         public string[] PreferredCDNs { get; set; }
 
+        public string Platform { get; set; }
+
         public readonly static NGDPContext DefaultContext = new NGDPContext()
         {
             RibbitHost = "us.version.battle.net",
             RibbitPort = 1119,
 
-            PreferredCDNs = new[] { "eu", "us" }
+            PreferredCDNs = new[] { "us", "eu" },
+            Platform = "Windows"
         };
     }
 }

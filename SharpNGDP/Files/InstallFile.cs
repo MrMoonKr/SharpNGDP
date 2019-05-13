@@ -1,5 +1,7 @@
 ﻿using SharpNGDP.Extensions;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -49,6 +51,14 @@ namespace SharpNGDP.Files
             sw.Stop();
             log.WriteLine($"Parsed InstallFile in {sw.Elapsed}");
             log.WriteLine($"{InstallFileEntries.Length} entries and {InstallFileTags.Length} tags");
+        }
+
+        public IEnumerable<InstallFileEntry> GetEntriesWithTag(InstallFileTag tag)
+        {
+            var fileBits = new BitArray(tag.Files);
+            for (var i = 0; i < InstallFileEntries.Length; i++)
+                if (fileBits[i])
+                    yield return InstallFileEntries[i];
         }
     }
 
