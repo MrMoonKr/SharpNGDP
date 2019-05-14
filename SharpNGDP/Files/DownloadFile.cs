@@ -1,5 +1,7 @@
 ﻿using SharpNGDP.Extensions;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -8,7 +10,7 @@ namespace SharpNGDP.Files
 {
     public class DownloadFile : BLTEFile
     {
-        private static Logger log = Logger.Create<DownloadFile>();
+        private static readonly Logger log = Logger.Create<DownloadFile>();
 
         public DownloadFile(Stream stream)
             : base(stream)
@@ -17,6 +19,14 @@ namespace SharpNGDP.Files
         public DownloadHeader DownloadHeader { get; private set; }
         public DownloadEntry[] DownloadEntries { get; private set; }
         public DownloadTag[] DownloadTags { get; private set; }
+
+        public IEnumerable<DownloadEntry> GetEntriesWithTag(DownloadTag tag)
+        {
+            var fileBits = new BitArray(tag.Files);
+            for (var i = 0; i < DownloadEntries.Length; i++)
+                if (fileBits[i])
+                    yield return DownloadEntries[i];
+        }
 
         public override void Read()
         {
@@ -35,8 +45,8 @@ namespace SharpNGDP.Files
                     DownloadEntries[i].Read(br);
                 }
 
-                const decimal CHAR_BIT = 8.0M;
-                var flagSize = (int)Math.Ceiling(DownloadHeader.EntryCount / CHAR_BIT);
+                const byte CHAR_BIT = 8;
+                var flagSize = (int)(DownloadHeader.EntryCount + (CHAR_BIT - 1)) / CHAR_BIT;
                 DownloadTags = new DownloadTag[DownloadHeader.TagCount];
                 for (var i = 0; i < DownloadTags.Length; i++)
                 {
@@ -74,16 +84,16 @@ namespace SharpNGDP.Files
     {
         public byte unk0 { get; private set; }
         public byte[] Hash { get; private set; }
-        public ulong FileSize { get; private set; }
+        public ulong Size { get; private set; }
         public byte DownloadPriority { get; private set; }
         public byte[] unk1 { get; private set; }
 
         public void Read(BinaryReader br)
         {
             unk0 = br.ReadByte();
-            const int HASH_SIZE = 16;
+            const int HASH_SIZE = 0x10;
             Hash = br.ReadBytes(HASH_SIZE);
-            FileSize = br.ReadUInt40(true);
+            Size = br.ReadUInt40(true);
             DownloadPriority = br.ReadByte();
             unk1 = br.ReadBytes(4);
         }

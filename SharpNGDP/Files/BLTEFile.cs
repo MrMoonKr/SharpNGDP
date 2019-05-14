@@ -9,7 +9,7 @@ namespace SharpNGDP.Files
 {
     public class BLTEFile : NGDPFile
     {
-        private static Logger log = Logger.Create<BLTEFile>();
+        private static readonly Logger log = Logger.Create<BLTEFile>();
 
         public BLTEFile(Stream stream)
             : base(stream)

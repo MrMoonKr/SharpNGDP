@@ -9,7 +9,7 @@ namespace SharpNGDP.Files
 {
     public class EncodingFile : BLTEFile
     {
-        private static Logger log = Logger.Create<EncodingFile>();
+        private static readonly Logger log = Logger.Create<EncodingFile>();
 
         public EncodingFile(Stream stream)
             : base(stream)
@@ -25,8 +25,6 @@ namespace SharpNGDP.Files
         public EKeySpecEntry[] EKeySpecEntries { get; private set; }
 
         public string EncodingFileProfile { get; private set; }
-
-        public Dictionary<string, string[]> ContentKeys { get; private set; }
 
         public override void Read()
         {

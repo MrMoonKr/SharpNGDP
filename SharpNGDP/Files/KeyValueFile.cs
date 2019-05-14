@@ -6,7 +6,7 @@ namespace SharpNGDP.Files
 {
     public class KeyValueFile : NGDPFile
     {
-        private static Logger log = Logger.Create<KeyValueFile>();
+        private static readonly Logger log = Logger.Create<KeyValueFile>();
 
         public KeyValueFile(Stream stream)
             : base(stream)

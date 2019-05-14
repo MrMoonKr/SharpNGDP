@@ -1,14 +1,11 @@
 ﻿using SharpNGDP.Extensions;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 
 namespace SharpNGDP.Files
 {
     public class ArchiveIndexFile : NGDPFile
     {
-        private static Logger log = Logger.Create<ArchiveIndexFile>();
+        private static readonly Logger log = Logger.Create<ArchiveIndexFile>();
 
         public ArchiveIndexFile(Stream stream)
             : base(stream)

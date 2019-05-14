@@ -10,7 +10,7 @@ namespace SharpNGDP
 
         public static List<ILogger> Consumers { get; } = new List<ILogger>()
         {
-            new FileLogger(string.Format("log-{0:yyyy-MM-dd_hh-mm-ss}.txt", DateTime.Now)),
+            FileLogger.Create(string.Format("logs/log-{0:yyyy-MM-dd_hh-mm-ss}.txt", DateTime.Now)),
             new ConsoleLogger()
         };
 
@@ -76,6 +76,12 @@ namespace SharpNGDP
         public FileLogger(string filename)
             : base(new FileStream(filename, FileMode.Create, FileAccess.Write))
         { }
+
+        public static FileLogger Create(string filename)
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(filename));
+            return new FileLogger(filename);
+        }
     }
 
     public abstract class StreamLogger : ILogger

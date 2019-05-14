@@ -10,7 +10,7 @@ namespace SharpNGDP.Files
 {
     public class InstallFile : BLTEFile
     {
-        private static Logger log = Logger.Create<InstallFile>();
+        private static readonly Logger log = Logger.Create<InstallFile>();
 
         public InstallFile(Stream stream)
             : base(stream)
@@ -30,8 +30,8 @@ namespace SharpNGDP.Files
                 InstallFileHeader = new InstallFileHeader();
                 InstallFileHeader.Read(br);
 
-                const decimal CHAR_BIT = 8.0M;
-                var flagSize = (int)Math.Ceiling(InstallFileHeader.EntryCount / CHAR_BIT);
+                const byte CHAR_BIT = 8;
+                var flagSize = (int)(InstallFileHeader.EntryCount + (CHAR_BIT - 1)) / CHAR_BIT;
 
                 InstallFileTags = new InstallFileTag[InstallFileHeader.TagCount];
                 for (var i = 0; i < InstallFileTags.Length; i++)

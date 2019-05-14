@@ -16,6 +16,10 @@ namespace SharpNGDP.Ribbit
             : base($"ribbit://{host}:{port}/{command.TrimStart('/')}")
         { }
 
+        public RibbitRequest(NGDPContext context, string command)
+            : this(context.RibbitHost, context.RibbitPort, command.TrimStart('/'))
+        { }
+
 
         public string Host => URI.Host;
         public int Port => URI.Port;
