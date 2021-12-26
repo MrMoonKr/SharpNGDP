@@ -12,8 +12,8 @@ namespace SharpNGDP.Ribbit
 
         private Regex s_ChecksumRegex = new Regex(@"Checksum: (\w+)", RegexOptions.Compiled);
 
-        public RibbitFile(Stream stream)
-            : base(stream)
+        public RibbitFile( Stream stream )
+            : base( stream )
         { }
 
         public string Checksum { get; private set; }
@@ -21,22 +21,22 @@ namespace SharpNGDP.Ribbit
         public MimeMessage MimeMessage { get; private set; }
 
         public override Stream GetStream() =>
-            new MemoryStream(Encoding.UTF8.GetBytes(MimeMessage.TextBody));
+            new MemoryStream( Encoding.UTF8.GetBytes( MimeMessage.TextBody ) );
 
         public override void Read()
         {
             var sw = Stopwatch.StartNew();
 
-            MimeMessage = MimeMessage.Load(base.GetStream());
+            MimeMessage = MimeMessage.Load( base.GetStream() );
             // throw new EmptyRibbitResponseException("Invalid response from server. Likely caused by malformed request.");
             var checksumMatch = s_ChecksumRegex.Match(((MultipartAlternative)MimeMessage.Body).Epilogue);
-            if (!checksumMatch.Success)
-                throw new MalformedRibbitResponseException("Response did not contain checksum in epilogue");
-            Checksum = checksumMatch.Groups[1].Value;
+            if ( !checksumMatch.Success )
+                throw new MalformedRibbitResponseException( "Response did not contain checksum in epilogue" );
+            Checksum = checksumMatch.Groups[ 1 ].Value;
 
             sw.Stop();
-            log.WriteLine($"Parsed RibbitFile in {sw.Elapsed}");
-            log.WriteLine($"Checksum: {Checksum}");
+            log.WriteLine( $"Parsed RibbitFile in {sw.Elapsed}" );
+            log.WriteLine( $"Checksum: {Checksum}" );
         }
     }
 }

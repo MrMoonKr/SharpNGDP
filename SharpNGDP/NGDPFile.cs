@@ -2,9 +2,12 @@
 
 namespace SharpNGDP
 {
+    /// <summary>
+    /// 웹 응답 컨텐츠 파일 추상화
+    /// </summary>
     public abstract class NGDPFile
     {
-        public NGDPFile(Stream stream)
+        public NGDPFile( Stream stream )
         {
             BaseStream = stream;
         }

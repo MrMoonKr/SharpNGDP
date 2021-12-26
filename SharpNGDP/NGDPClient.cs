@@ -9,36 +9,48 @@ using System.Linq;
 
 namespace SharpNGDP
 {
+    /// <summary>
+    /// 웹 클라이언트
+    /// </summary>
     public class NGDPClient
     {
-        public NGDPClient(NGDPContext context)
+        public NGDPClient( NGDPContext context )
         {
-            Context = context;
-
-            RibbitClient = new RibbitClient();
-            TACTClient = new TACTClient();
-
-            FileManager = new FileManager(this, Context.LocalCache);
+            Context         = context;
+            RibbitClient    = new RibbitClient();
+            TACTClient      = new TACTClient();
+            FileManager     = new FileManager( this, Context.LocalCache );
         }
 
-        public NGDPClient()
-            : this(NGDPContext.DefaultContext)
-        { }
+        public NGDPClient() : this( NGDPContext.DefaultContext )
+        {
+            // nothing
+        }
 
+        /// <summary>
+        /// 서버
+        /// </summary>
         public NGDPContext Context { get; private set; }
-
+        /// <summary>
+        /// TCP 요청 및 응답
+        /// </summary>
         public RibbitClient RibbitClient { get; private set; }
+        /// <summary>
+        /// HTTP 요청 및 응답
+        /// </summary>
         public TACTClient TACTClient { get; private set; }
-
+        /// <summary>
+        /// 로컬 캐싱
+        /// </summary>
         public FileManager FileManager { get; private set; }
 
         public IEnumerable<SummaryRecord> GetSummary()
         {
-            var response = FileManager.Get(new RibbitRequest(Context, $"v1/summary"));
+            var response = FileManager.Get( new RibbitRequest( Context, $"v1/summary" ) );
             return response.GetFile<PSVFile>().AsRecords<SummaryRecord>();
         }
 
-        public IEnumerable<VersionRecord> GetProductVersions(string productName)
+        public IEnumerable<VersionRecord> GetProductVersions( string productName )
         {
             var response = FileManager.Get(new RibbitRequest(Context, $"v1/products/{productName}/versions"));
             return response.GetFile<PSVFile>().AsRecords<VersionRecord>();

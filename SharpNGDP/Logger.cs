@@ -4,6 +4,9 @@ using System.IO;
 
 namespace SharpNGDP
 {
+    /// <summary>
+    /// 로그 - 파일, 컨솔
+    /// </summary>
     public class Logger : ILogger
     {
         private const string LOG_FORMAT = "{0} [{1}]: {2}";

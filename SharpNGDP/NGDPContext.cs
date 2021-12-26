@@ -1,5 +1,8 @@
 ﻿namespace SharpNGDP
 {
+    /// <summary>
+    /// 웹 서버 컨텍스트 ( 핵심 정보 )
+    /// </summary>
     public class NGDPContext
     {
         public string RibbitHost { get; set; }
@@ -14,13 +17,24 @@
 
         public readonly static NGDPContext DefaultContext = new NGDPContext()
         {
-            RibbitHost = "us.version.battle.net",
-            RibbitPort = 1119,
+            RibbitHost      = "us.version.battle.net",
+            RibbitPort      = 1119,
 
-            PreferredCDNs = new[] { "us", "eu" },
-            Platform = "Windows",
+            PreferredCDNs   = new[] { "kr", "us", "eu" },
+            Platform        = "Windows",
 
-            LocalCache = "cache"
+            LocalCache      = "cache"
+        };
+
+        public readonly static NGDPContext s_ContextKr = new NGDPContext()
+        {
+            RibbitHost      = "kr.version.battle.net",
+            RibbitPort      = 1119,
+
+            PreferredCDNs   = new[] { "kr", "us" },
+            Platform        = "Windows",
+
+            LocalCache      = "blizzard"
         };
     }
 }

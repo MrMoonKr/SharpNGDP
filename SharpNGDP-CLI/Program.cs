@@ -16,7 +16,8 @@ namespace SharpNGDP
             //printSummary();
             //printProducts();
             //downloadWoWConfigs();
-            installProduct("wow_classic_beta");
+            //installProduct("wow_classic_beta");
+            installProduct( "wow" );
 
             readLoop();
         }
@@ -24,18 +25,25 @@ namespace SharpNGDP
         private static void readLoop()
         {
             var ngdp = new NGDPClient();
+
             do
             {
-                Console.WriteLine("Enter command:");
+                Console.WriteLine( "Press q to exit or any other key to continue" );
+                Console.WriteLine( "Enter command : " );
+
                 var cmd = Console.ReadLine();
-                if (string.IsNullOrEmpty(cmd)) break;
+                if ( string.IsNullOrEmpty( cmd ) || cmd.ToLower() == "q" ) break;
 
                 var response = ngdp.FileManager.Get(new RibbitRequest(ngdp.Context, cmd));
                 var file = response.GetFile<RibbitFile>();
                 Console.WriteLine(file.MimeMessage.TextBody);
+
                 Console.WriteLine();
-                Console.WriteLine("Press ENTER to exit or any other key to continue");
-            } while (Console.ReadKey().Key != ConsoleKey.Enter);
+
+                //Console.WriteLine( "Press ENTER to exit or any other key to continue" );
+                //Console.WriteLine( "Press q to exit or any other key to continue" );
+
+            } while ( Console.ReadKey().KeyChar != 'q' /*ConsoleKey.Enter*/ );
         }
 
         private static void printSummary()
@@ -135,34 +143,39 @@ namespace SharpNGDP
                 stream.CopyTo(fs);
         }
 
-        private static void installProduct(string productName)
+        /// <summary>
+        /// 전달된 게임 로컬에 설치.
+        /// </summary>
+        /// <param name="productName">wow, w3, d3 기타 등등</param>
+        private static void installProduct( string productName )
         {
-            var ngdp = new NGDPClient();
+            var ngdp            = new NGDPClient( NGDPContext.s_ContextKr );
 
-            Console.WriteLine($"Looking up product '{productName}'");
+            Console.WriteLine( $"Looking up product '{ productName }'" );
 
-            var versions = ngdp.GetProductVersions(productName);
-            var version = versions.OrderByDescending(v => v.BuildId).FirstOrDefault();
-            Console.WriteLine($"Found {versions.Count()} versions. Selecting build {version.BuildId}.");
+            var versions        = ngdp.GetProductVersions( productName );
+            var version         = versions.OrderByDescending( v => v.BuildId ).FirstOrDefault() ;
+            Console.WriteLine( $"Found { versions.Count() } versions. Selecting build { version.BuildId }.");
 
-            var cdns = ngdp.GetProductCDNs(productName);
-            var cdn = ngdp.GetPreferredCDN(cdns);
-            Console.WriteLine($"Found {cdns.Count()} CDNs. Selecting '{cdn.Name}'");
+            var cdns            = ngdp.GetProductCDNs( productName );
+            var cdn             = ngdp.GetPreferredCDN( cdns );
+            Console.WriteLine( $"Found { cdns.Count() } CDNs. Selecting '{ cdn.Name }'" );
 
-            var vmgr = new VersionManager(version, cdn);
-            var amgr = new ArchiveManager(ngdp, cdn);
-            amgr.AddArchives(vmgr.CDNConfig.Dictionary["archives"].Split(' '));
+            var vmgr            = new VersionManager( version, cdn );
+            var amgr            = new ArchiveManager( ngdp, cdn );
+            amgr.AddArchives( vmgr.CDNConfig.Dictionary["archives"].Split(' ') );
 
-            var baseDir = version.BuildConfig;
+            var baseDir         = version.BuildConfig;
+
             // Install files
             {
-                var tag = vmgr.InstallFile.InstallFileTags.FirstOrDefault(t => t.Name.ToLower() == ngdp.Context.Platform.ToLower());
-                Console.WriteLine($"InstallFile contains {vmgr.InstallFile.InstallFileTags.Length} tags. Selecting '{tag.Name}'");
+                var tag         = vmgr.InstallFile.InstallFileTags.FirstOrDefault( t => t.Name.ToLower() == ngdp.Context.Platform.ToLower() );
+                Console.WriteLine( $"InstallFile contains { vmgr.InstallFile.InstallFileTags.Length } tags. Selecting '{ tag.Name }'" );
 
-                var files = vmgr.InstallFile.GetEntriesWithTag(tag);
-                Console.WriteLine($"{files.Count()} entries tagged. Downloading...");
+                var files       = vmgr.InstallFile.GetEntriesWithTag( tag );
+                Console.WriteLine( $"{ files.Count() } entries tagged. Downloading..." );
 
-                foreach (var file in files)
+                foreach ( var file in files )
                 {
                     var ckey = file.Hash.ToHexString();
                     var ekey = vmgr.GetEKeyByCKey(ckey);

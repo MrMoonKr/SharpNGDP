@@ -7,8 +7,8 @@ namespace SharpNGDP.Files
     {
         private static readonly Logger log = Logger.Create<ArchiveIndexFile>();
 
-        public ArchiveIndexFile(Stream stream)
-            : base(stream)
+        public ArchiveIndexFile( Stream stream )
+            : base( stream )
         { }
 
         public ArchiveIndexFooter Footer { get; private set; }
@@ -19,23 +19,24 @@ namespace SharpNGDP.Files
         {
             //base.Read();
 
-            using (var br = new BinaryReader(GetStream()))
+            using ( var br = new BinaryReader( GetStream() ) )
             {
-                br.BaseStream.Seek(-ArchiveIndexFooter.FOOTER_SIZE, SeekOrigin.End);
+                br.BaseStream.Seek( -ArchiveIndexFooter.FOOTER_SIZE , SeekOrigin.End );
                 Footer = new ArchiveIndexFooter();
-                Footer.Read(br);
-                br.BaseStream.Seek(0, SeekOrigin.Begin);
+                Footer.Read( br );
+                br.BaseStream.Seek( 0 , SeekOrigin.Begin );
 
-                var totalBlocks = (br.BaseStream.Length - ArchiveIndexFooter.FOOTER_SIZE) / (Footer.BlockSize << 10);
-                Blocks = new ArchiveIndexBlock[totalBlocks];
-                for (var i = 0; i < Blocks.Length; i++)
+                var totalBlocks = ( br.BaseStream.Length - ArchiveIndexFooter.FOOTER_SIZE ) / ( Footer.BlockSize << 10 );
+
+                Blocks = new ArchiveIndexBlock[ totalBlocks ];
+                for ( var i = 0; i < Blocks.Length; i++ )
                 {
-                    Blocks[i] = new ArchiveIndexBlock();
-                    Blocks[i].Read(br, Footer);
+                    Blocks[ i ] = new ArchiveIndexBlock();
+                    Blocks[ i ].Read( br , Footer );
                 }
 
                 Contents = new ArchiveIndexContents();
-                Contents.Read(br, Footer, Blocks.Length);
+                Contents.Read( br , Footer , Blocks.Length );
             }
         }
     }
@@ -46,11 +47,11 @@ namespace SharpNGDP.Files
         public byte[] CompressedSize { get; private set; }
         public byte[] BLTEChunkOffset { get; private set; }
 
-        public void Read(BinaryReader br, ArchiveIndexFooter footer)
+        public void Read( BinaryReader br , ArchiveIndexFooter footer )
         {
-            EKey = br.ReadBytes(footer.KeySize);
-            CompressedSize = br.ReadBytes(footer.SizeBytes).ReverseBytes();
-            BLTEChunkOffset = br.ReadBytes(footer.OffsetBytes).ReverseBytes();
+            EKey = br.ReadBytes( footer.KeySize );
+            CompressedSize = br.ReadBytes( footer.SizeBytes ).ReverseBytes();
+            BLTEChunkOffset = br.ReadBytes( footer.OffsetBytes ).ReverseBytes();
         }
     }
 
@@ -59,21 +60,21 @@ namespace SharpNGDP.Files
         public ArchiveIndexEntry[] Entries { get; private set; }
         //public byte[] Padding { get; private set; }
 
-        public void Read(BinaryReader br, ArchiveIndexFooter footer)
+        public void Read( BinaryReader br , ArchiveIndexFooter footer )
         {
             var sizeIndexEntry = footer.KeySize + footer.SizeBytes + footer.OffsetBytes;
             var blockSize = (footer.BlockSize << 10);
-            Entries = new ArchiveIndexEntry[blockSize / sizeIndexEntry];
-            for (var i = 0; i < Entries.Length; i++)
+            Entries = new ArchiveIndexEntry[ blockSize / sizeIndexEntry ];
+            for ( var i = 0; i < Entries.Length; i++ )
             {
-                Entries[i] = new ArchiveIndexEntry();
-                Entries[i].Read(br, footer);
+                Entries[ i ] = new ArchiveIndexEntry();
+                Entries[ i ].Read( br , footer );
             }
 
             // Either read padding
             //Padding = br.ReadBytes(blockSize - (Entries.Length * sizeIndexEntry));
             // or just skip it
-            br.BaseStream.Seek(blockSize - (Entries.Length * sizeIndexEntry), SeekOrigin.Current);
+            br.BaseStream.Seek( blockSize - ( Entries.Length * sizeIndexEntry ) , SeekOrigin.Current );
         }
     }
 
@@ -82,15 +83,15 @@ namespace SharpNGDP.Files
         public byte[][] Entries { get; private set; }
         public byte[][] Checksums { get; private set; }
 
-        public void Read(BinaryReader br, ArchiveIndexFooter footer, int blockCount)
+        public void Read( BinaryReader br , ArchiveIndexFooter footer , int blockCount )
         {
-            Entries = new byte[blockCount][];
-            for (var i = 0; i < Entries.Length; i++)
-                Entries[i] = br.ReadBytes(footer.KeySize);
+            Entries = new byte[ blockCount ][];
+            for ( var i = 0; i < Entries.Length; i++ )
+                Entries[ i ] = br.ReadBytes( footer.KeySize );
 
-            Checksums = new byte[blockCount][];
-            for (var i = 0; i < Checksums.Length; i++)
-                Checksums[i] = br.ReadBytes(footer.ChecksumSize);
+            Checksums = new byte[ blockCount ][];
+            for ( var i = 0; i < Checksums.Length; i++ )
+                Checksums[ i ] = br.ReadBytes( footer.ChecksumSize );
         }
     }
 
@@ -111,9 +112,9 @@ namespace SharpNGDP.Files
         public uint ElementCount { get; private set; }
         public byte[] FooterChecksum { get; private set; }
 
-        public void Read(BinaryReader br)
+        public void Read( BinaryReader br )
         {
-            ContentHash = br.ReadBytes(CHECKSUM_SIZE);
+            ContentHash = br.ReadBytes( CHECKSUM_SIZE );
             Version = br.ReadByte();
             unk0 = br.ReadByte();
             unk1 = br.ReadByte();
@@ -123,7 +124,7 @@ namespace SharpNGDP.Files
             KeySize = br.ReadByte();
             ChecksumSize = br.ReadByte();
             ElementCount = br.ReadUInt32();
-            FooterChecksum = br.ReadBytes(CHECKSUM_SIZE);
+            FooterChecksum = br.ReadBytes( CHECKSUM_SIZE );
         }
     }
 }
