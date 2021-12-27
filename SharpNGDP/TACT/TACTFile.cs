@@ -7,6 +7,8 @@ namespace SharpNGDP.TACT
     {
         public TACTFile( Stream stream )
             : base( stream )
-        { }
+        {
+            // nothing
+        }
     }
 }

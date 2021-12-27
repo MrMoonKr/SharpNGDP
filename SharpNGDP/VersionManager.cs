@@ -99,20 +99,22 @@ namespace SharpNGDP
 
         public System.IO.Stream RequestFile( string ckey )
         {
-            var key = ckey;
+            var key     = ckey;
 
-            var ekey = GetEKeyByCKey(key);
+            var ekey    = GetEKeyByCKey( key );
             if ( !string.IsNullOrEmpty( ekey ) )
-                key = ekey;
+            {
+                key     = ekey;
+            }
 
-            var archiveFile = ArchiveManager.Get(key);
+            var archiveFile = ArchiveManager.Get( key );
             if ( archiveFile != null )
             {
                 return archiveFile.GetStream();
             }
 
-            var req = new TACTRequest(CDN, CDNRequestType.Data, key);
-            var res = NGDPClient.FileManager.Get(req);
+            var req     = new TACTRequest( CDN, CDNRequestType.Data, key );
+            var res     = NGDPClient.FileManager.Get( req );
             return res.GetFile<BLTEFile>().GetStream();
         }
     }

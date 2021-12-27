@@ -3,7 +3,7 @@
 namespace SharpNGDP
 {
     /// <summary>
-    /// 웹 응답 컨텐츠 파일 추상화
+    /// 응답 컨텐츠 파일 추상화
     /// </summary>
     public abstract class NGDPFile
     {
@@ -13,6 +13,11 @@ namespace SharpNGDP
         }
 
         public Stream BaseStream { get; }
+
+        /// <summary>
+        /// 데이터 스트림 반환.
+        /// </summary>
+        /// <returns></returns>
         public virtual Stream GetStream() => BaseStream;
 
         public abstract void Read();

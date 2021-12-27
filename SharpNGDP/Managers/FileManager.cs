@@ -20,8 +20,8 @@ namespace SharpNGDP.Managers
             BasePath    = basePath;
         }
 
-        private NGDPClient NGDPClient { get; }
-        public string BasePath { get; }
+        private NGDPClient  NGDPClient { get; }
+        public string       BasePath { get; }
 
         public NGDPResponse Get( NGDPRequest request )
         {
@@ -29,17 +29,21 @@ namespace SharpNGDP.Managers
             {
                 case RibbitRequest req:
                     {
-                        var res = NGDPClient.RibbitClient.Execute(req);
-                        var fp = Path.Combine(BasePath, "ribbit", res.GetFile<RibbitFile>().Checksum);
+                        var res = NGDPClient.RibbitClient.Execute( req );
+
+                        var fp  = Path.Combine( BasePath, "ribbit", res.GetFile<RibbitFile>().Checksum );
                         if ( !File.Exists( fp ) )
+                        {
                             WriteStreamToFile( res.GetStream() , fp );
+                        }
+
                         return res;
                     }
 
                 case TACTRequest req:
                     {
                         // 로컬 캐시된 파일 있으면 로컬 파일스트림으로 응답 생성.
-                        var fp = Path.Combine( BasePath, "cdn", req.URI.AbsolutePath.TrimStart('/') );
+                        var fp = Path.Combine( BasePath, "cdn", req.URI.AbsolutePath.TrimStart( '/' ) );
                         if ( File.Exists( fp ) )
                         {
                             using ( var fs = new FileStream( fp , FileMode.Open , FileAccess.Read ) )
@@ -56,7 +60,9 @@ namespace SharpNGDP.Managers
                     }
 
                 default:
-                    return null;
+                    {
+                        return null;
+                    }
             }
         }
 

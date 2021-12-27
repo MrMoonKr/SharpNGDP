@@ -31,10 +31,11 @@ namespace SharpNGDP.Files
             base.Read();
 
             var sw = Stopwatch.StartNew();
-            using (var br = new BinaryReader(GetStream()))
+
+            using ( var br = new BinaryReader( GetStream() ) )
             {
                 EncodingHeader = new EncodingHeader();
-                EncodingHeader.Read(br);
+                EncodingHeader.Read( br );
 
                 var espec = new List<string>();
                 var startPos = br.BaseStream.Position;
@@ -51,18 +52,20 @@ namespace SharpNGDP.Files
                 }
 
                 var ckeys = new List<ContentKeyEntry>();
-                for (var i = 0; i < EncodingHeader.CEKeyPageTablePageCount; i++)
+                for ( var i = 0 ; i < EncodingHeader.CEKeyPageTablePageCount ; i++ )
                 {
                     var offset = br.BaseStream.Position;
-                    long remaining() => (offset + (EncodingHeader.CEKeyPageTableSize * 1024)) - br.BaseStream.Position;
-                    while (remaining() > 0)
+                    long remaining() => ( offset + ( EncodingHeader.CEKeyPageTableSize * 1024 ) ) - br.BaseStream.Position;
+                    while ( remaining() > 0 )
                     {
                         var entry = new ContentKeyEntry();
-                        entry.Read(br, EncodingHeader.CKeyHashSize, EncodingHeader.EKeyHashSize);
-                        if (entry.KeyCount == 0)
+                        entry.Read( br, EncodingHeader.CKeyHashSize, EncodingHeader.EKeyHashSize );
+                        if ( entry.KeyCount == 0 )
+                        {
                             break;
+                        }
 
-                        ckeys.Add(entry);
+                        ckeys.Add( entry );
                     }
 
                     br.BaseStream.Position = offset + EncodingHeader.CEKeyPageTableSize * 1024;
@@ -156,19 +159,21 @@ namespace SharpNGDP.Files
 
     public class ContentKeyEntry
     {
-        public byte KeyCount { get; private set; }
-        public ulong FileSize { get; private set; }
-        public byte[] CKey { get; private set; }
+        public byte     KeyCount { get; private set; }
+        public ulong    FileSize { get; private set; }
+        public byte[]   CKey { get; private set; }
         public byte[][] EKey { get; private set; }
 
-        public void Read(BinaryReader br, uint ckeyHashSize, uint ekeyHashSize)
+        public void Read( BinaryReader br, uint ckeyHashSize, uint ekeyHashSize )
         {
-            KeyCount = br.ReadByte();
-            FileSize = br.ReadUInt40(true);
-            CKey = br.ReadBytes((int)ckeyHashSize);
-            EKey = new byte[KeyCount][];
-            for (var i = 0; i < EKey.Length; i++)
-                EKey[i] = br.ReadBytes((int)ekeyHashSize);
+            KeyCount    = br.ReadByte();
+            FileSize    = br.ReadUInt40( true );
+            CKey        = br.ReadBytes( (int)ckeyHashSize );
+            EKey        = new byte[KeyCount][];
+            for ( var i = 0 ; i < EKey.Length ; i++ )
+            {
+                EKey[i] = br.ReadBytes( (int)ekeyHashSize );
+            }
         }
     }
 

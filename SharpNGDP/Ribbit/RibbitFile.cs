@@ -35,8 +35,9 @@ namespace SharpNGDP.Ribbit
             Checksum = checksumMatch.Groups[ 1 ].Value;
 
             sw.Stop();
-            log.WriteLine( $"Parsed RibbitFile in {sw.Elapsed}" );
-            log.WriteLine( $"Checksum: {Checksum}" );
+
+            log.WriteLine( $"Parsed RibbitFile in { sw.Elapsed }" );
+            log.WriteLine( $"Checksum: { Checksum }" );
         }
     }
 }

@@ -5,7 +5,7 @@ using System.IO;
 namespace SharpNGDP
 {
     /// <summary>
-    /// 웹 응답 추상화
+    /// 응답 추상화
     /// </summary>
     public abstract class NGDPResponse
     {
@@ -23,10 +23,14 @@ namespace SharpNGDP
             log.WriteLine( $"Received response from request to {Request.URI} at {Received} of {Buffer.Length} bytes" );
         }
 
-        public NGDPRequest Request { get; }
-        public DateTime Received { get; }
-        public byte[] Buffer { get; }
+        public NGDPRequest      Request { get; }
+        public DateTime         Received { get; }
+        public byte[]           Buffer { get; }
 
+        /// <summary>
+        /// 캐시된 Buffer에 대한 메모리스트림 반환
+        /// </summary>
+        /// <returns></returns>
         public Stream GetStream() => new MemoryStream( Buffer );
 
         public T GetFile<T>() where T : NGDPFile

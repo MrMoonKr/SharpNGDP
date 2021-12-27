@@ -7,19 +7,60 @@ using System;
 using System.IO;
 using System.Linq;
 
+
 namespace SharpNGDP
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main( string[] args )
         {
             //printSummary();
             //printProducts();
             //downloadWoWConfigs();
             //installProduct("wow_classic_beta");
-            installProduct( "wow" );
+            //installProduct( "wow" );
 
-            readLoop();
+            //readLoop();
+
+            bool isActive = true ;
+            while ( isActive )
+            {
+                Console.Write( "명령어 입력하세요 : " );
+                //ConsoleKeyInfo key = Console.ReadKey( true ) ;
+                string cmd = Console.ReadLine() ;
+
+                switch ( cmd.ToLower() )
+                {
+                case "q":
+                case "quit":
+                    {
+                        isActive = false ;
+                    }
+                    break;
+
+                case "s":
+                case "summary":
+                    {
+                        printSummary();
+                    }
+                    break;
+                case "p":
+                case "products":
+                    {
+                        printProducts();
+                    }
+                    break;
+
+                default:
+                    {
+                        Console.WriteLine( "입력한 명령어 : " + cmd.ToLower() );
+                    }
+                    break;
+                }
+            }
+
+            Console.Write( "종료하려면 엔터키를 누르세요..." );
+            Console.Read(); // 실행 잠시 멈춤용.
         }
 
         private static void readLoop()
@@ -48,17 +89,19 @@ namespace SharpNGDP
 
         private static void printSummary()
         {
-            var ngdp = new NGDPClient();
-            var summary = ngdp.GetSummary();
+            var ngdp        = new NGDPClient();
+            var summary     = ngdp.GetSummary();
+
             const string SUMMARY_ALIGN_FORMAT = "{0,-20} | {1, 8} | {2, -8}";
-            var header = string.Format(SUMMARY_ALIGN_FORMAT, "Product", "Seq #", "Flags");
-            Console.WriteLine(header);
-            Console.WriteLine(new string('-', header.Length));
-            foreach (var s in summary)
+            var header      = string.Format( SUMMARY_ALIGN_FORMAT, "Product", "Seq #", "Flags" );
+
+            Console.WriteLine( header );
+            Console.WriteLine( new string( '-', header.Length ) );
+            foreach ( var s in summary )
             {
-                Console.WriteLine(SUMMARY_ALIGN_FORMAT,
-                    s.Product, s.Seqn, s.Flags);
+                Console.WriteLine( SUMMARY_ALIGN_FORMAT, s.Product, s.Seqn, s.Flags );
             }
+
             Console.WriteLine();
         }
 
@@ -177,13 +220,13 @@ namespace SharpNGDP
 
                 foreach ( var file in files )
                 {
-                    var ckey = file.Hash.ToHexString();
-                    var ekey = vmgr.GetEKeyByCKey(ckey);
-                    Console.WriteLine($"Downloading (CKey={ckey}, EKey={ekey}) as '{file.Name}' ({file.Size} bytes)...");
+                    var ckey    = file.Hash.ToHexString();
+                    var ekey    = vmgr.GetEKeyByCKey( ckey );
+                    Console.WriteLine( $"Downloading ( CKey={ ckey }, EKey={ ekey } ) as '{ file.Name }' ( { file.Size } bytes )..." );
 
-                    var fp = Path.Combine(baseDir, file.Name);
-                    Directory.CreateDirectory(Path.GetDirectoryName(fp));
-                    CopyToFile(vmgr.RequestFile(file.Hash.ToHexString()), fp);
+                    var fp      = Path.Combine( baseDir, file.Name );
+                    Directory.CreateDirectory( Path.GetDirectoryName( fp ) );
+                    CopyToFile( vmgr.RequestFile( file.Hash.ToHexString() ), fp );
                 }
             }
 

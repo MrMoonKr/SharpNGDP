@@ -11,6 +11,9 @@ namespace SharpNGDP.TACT
         Product,
     };
 
+    /// <summary>
+    /// HTTP 요청
+    /// </summary>
     public class TACTRequest : NGDPRequest
     {
         public TACTRequest( Uri uri )
@@ -21,6 +24,12 @@ namespace SharpNGDP.TACT
             : base( url )
         { }
 
+        /// <summary>
+        /// 생성자
+        /// </summary>
+        /// <param name="cdn">서버</param>
+        /// <param name="requestType">요청타입 ( config, data, patch, product )</param>
+        /// <param name="fileHash">요청하는 파일 ( HEX:16 )</param>
         public TACTRequest( CDNRecord cdn , CDNRequestType requestType , string fileHash )
             : base( $"http://{ cdn.Hosts[ 0 ] }/{ GetPath( cdn , requestType ) }/{ CreatePartitionedHash( fileHash ) }" )
         { }

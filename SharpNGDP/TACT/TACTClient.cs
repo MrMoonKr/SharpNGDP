@@ -15,7 +15,9 @@ namespace SharpNGDP.TACT
         private static readonly HttpClient HttpClient = new HttpClient();
 
         public TACTClient()
-        { }
+        {
+            // nothing
+        }
 
         public TACTResponse Get( TACTRequest request )
         {

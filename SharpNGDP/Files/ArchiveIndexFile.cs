@@ -9,10 +9,12 @@ namespace SharpNGDP.Files
 
         public ArchiveIndexFile( Stream stream )
             : base( stream )
-        { }
+        {
+            // nothing
+        }
 
-        public ArchiveIndexFooter Footer { get; private set; }
-        public ArchiveIndexBlock[] Blocks { get; private set; }
+        public ArchiveIndexFooter   Footer { get; private set; }
+        public ArchiveIndexBlock[]  Blocks { get; private set; }
         public ArchiveIndexContents Contents { get; private set; }
 
         public override void Read()
@@ -49,8 +51,8 @@ namespace SharpNGDP.Files
 
         public void Read( BinaryReader br , ArchiveIndexFooter footer )
         {
-            EKey = br.ReadBytes( footer.KeySize );
-            CompressedSize = br.ReadBytes( footer.SizeBytes ).ReverseBytes();
+            EKey            = br.ReadBytes( footer.KeySize );
+            CompressedSize  = br.ReadBytes( footer.SizeBytes ).ReverseBytes();
             BLTEChunkOffset = br.ReadBytes( footer.OffsetBytes ).ReverseBytes();
         }
     }
@@ -97,34 +99,34 @@ namespace SharpNGDP.Files
 
     public class ArchiveIndexFooter
     {
-        public const int FOOTER_SIZE = 0x1C;
-        private const int CHECKSUM_SIZE = 0x08;
+        public const int    FOOTER_SIZE     = 0x1C; // 28
+        private const int   CHECKSUM_SIZE   = 0x08; //  8
 
-        public byte[] ContentHash { get; private set; }
-        public byte Version { get; private set; }
-        public byte unk0 { get; private set; }
-        public byte unk1 { get; private set; }
-        public byte BlockSize { get; private set; } // in kb
-        public byte OffsetBytes { get; private set; }
-        public byte SizeBytes { get; private set; }
-        public byte KeySize { get; private set; }
-        public byte ChecksumSize { get; private set; }
-        public uint ElementCount { get; private set; }
-        public byte[] FooterChecksum { get; private set; }
+        public byte[]   ContentHash { get; private set; }
+        public byte     Version { get; private set; }
+        public byte     unk0 { get; private set; }
+        public byte     unk1 { get; private set; }
+        public byte     BlockSize { get; private set; } // in kb
+        public byte     OffsetBytes { get; private set; }
+        public byte     SizeBytes { get; private set; }
+        public byte     KeySize { get; private set; }
+        public byte     ChecksumSize { get; private set; }
+        public uint     ElementCount { get; private set; }
+        public byte[]   FooterChecksum { get; private set; }
 
         public void Read( BinaryReader br )
         {
-            ContentHash = br.ReadBytes( CHECKSUM_SIZE );
-            Version = br.ReadByte();
-            unk0 = br.ReadByte();
-            unk1 = br.ReadByte();
-            BlockSize = br.ReadByte();
-            OffsetBytes = br.ReadByte();
-            SizeBytes = br.ReadByte();
-            KeySize = br.ReadByte();
-            ChecksumSize = br.ReadByte();
-            ElementCount = br.ReadUInt32();
-            FooterChecksum = br.ReadBytes( CHECKSUM_SIZE );
+            ContentHash         = br.ReadBytes( CHECKSUM_SIZE );
+            Version             = br.ReadByte();
+            unk0                = br.ReadByte();
+            unk1                = br.ReadByte();
+            BlockSize           = br.ReadByte();
+            OffsetBytes         = br.ReadByte();
+            SizeBytes           = br.ReadByte();
+            KeySize             = br.ReadByte();
+            ChecksumSize        = br.ReadByte();
+            ElementCount        = br.ReadUInt32();
+            FooterChecksum      = br.ReadBytes( CHECKSUM_SIZE );
         }
     }
 }

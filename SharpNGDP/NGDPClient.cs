@@ -10,7 +10,8 @@ using System.Linq;
 namespace SharpNGDP
 {
     /// <summary>
-    /// 웹 클라이언트
+    /// NGDP 클라이언트.
+    /// https://wowdev.wiki/NGDP
     /// </summary>
     public class NGDPClient
     {
@@ -22,7 +23,7 @@ namespace SharpNGDP
             FileManager     = new FileManager( this, Context.LocalCache );
         }
 
-        public NGDPClient() : this( NGDPContext.DefaultContext )
+        public NGDPClient() : this( NGDPContext.s_ContextDefault )
         {
             // nothing
         }
@@ -30,19 +31,19 @@ namespace SharpNGDP
         /// <summary>
         /// 서버
         /// </summary>
-        public NGDPContext Context { get; private set; }
+        public NGDPContext      Context { get; private set; }
         /// <summary>
         /// TCP 요청 및 응답
         /// </summary>
-        public RibbitClient RibbitClient { get; private set; }
+        public RibbitClient     RibbitClient { get; private set; }
         /// <summary>
         /// HTTP 요청 및 응답
         /// </summary>
-        public TACTClient TACTClient { get; private set; }
+        public TACTClient       TACTClient { get; private set; }
         /// <summary>
         /// 로컬 캐싱
         /// </summary>
-        public FileManager FileManager { get; private set; }
+        public FileManager      FileManager { get; private set; }
 
         public IEnumerable<SummaryRecord> GetSummary()
         {
@@ -52,19 +53,19 @@ namespace SharpNGDP
 
         public IEnumerable<VersionRecord> GetProductVersions( string productName )
         {
-            var response = FileManager.Get(new RibbitRequest(Context, $"v1/products/{productName}/versions"));
+            var response = FileManager.Get( new RibbitRequest( Context, $"v1/products/{productName}/versions" ) );
             return response.GetFile<PSVFile>().AsRecords<VersionRecord>();
         }
 
-        public IEnumerable<CDNRecord> GetProductCDNs(string productName)
+        public IEnumerable<CDNRecord> GetProductCDNs( string productName )
         {
-            var response = FileManager.Get(new RibbitRequest(Context, $"v1/products/{productName}/cdns"));
+            var response = FileManager.Get( new RibbitRequest( Context, $"v1/products/{productName}/cdns" ) );
             return response.GetFile<PSVFile>().AsRecords<CDNRecord>();
         }
 
-        public CDNRecord GetPreferredCDN(IEnumerable<CDNRecord> cdns) =>
-            cdns.Where(cdn => Context.PreferredCDNs.Contains(cdn.Name))
-            .OrderBy(cdn => Array.IndexOf(Context.PreferredCDNs, cdn.Name))
+        public CDNRecord GetPreferredCDN( IEnumerable<CDNRecord> cdns ) =>
+            cdns.Where( cdn => Context.PreferredCDNs.Contains( cdn.Name ) )
+            .OrderBy( cdn => Array.IndexOf( Context.PreferredCDNs , cdn.Name ) )
             .FirstOrDefault();
     }
 }
